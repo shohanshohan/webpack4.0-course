@@ -1,12 +1,24 @@
-var path = require('path');
+const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+
 module.exports = {
 	mode: 'development',
+	//devtool: 'inline-cheap-module-evel-source-map',
 	entry: {
 		main: './src/index.js'
+		//avatar: './src/avatar.js'
 	},
 	output: {
+		publicPath: '/',
 		path: path.resolve(__dirname, 'dist'),
-		filename: 'main.js'
+		filename: '[name].bundle.js'
+	},
+	devServer: {
+		contentBase: './dist',
+		open: true,
+		hot: true
 	},
 	module: {
 		rules: [
@@ -55,5 +67,13 @@ module.exports = {
 				use: 'file-loader'
 			}
 		]
-	}
+	},
+	plugins: [
+		new CleanWebpackPlugin(),
+		new HtmlWebpackPlugin({
+			template: './src/index.html'
+		}),
+		new webpack.NamedModulesPlugin(),
+		new webpack.HotModuleReplacementPlugin()
+	]
 }

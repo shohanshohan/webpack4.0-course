@@ -1,0 +1,31 @@
+webpack sourceMap的配置
+使用 SourceMapDevToolPlugin 进行更细粒度的配置
+
+默认的，在开发环境在（mode: 'development'）是自动开启 sourceMap 的
+
+我们把它关闭，在webpack.config.js配置文件下添加：
+devtool: 'none',
+......
+
+我们修改一下 /src/index.js 添加一行
+consol.log('error') //这一行语句是错误的，正确的是console.log()
+打包一下： npm run dev
+打开浏览器控制台 发现有报错信息，但这个报错信息是直接指向我们打包后的文件 main.bundle.js 的
+如果我们的打包文件有依赖的源文件或有多个文件时，这个时候就不好定位错误具体是来自哪一个文件的哪一个地方了
+
+
+sourceMap 是一个映射关系，它可以追踪错误的地方
+我们把配置改一下：
+devtool: 'inline-source-map',
+再次打包： npm run dev
+再次查看控制台，报错信息直接指向 ./src/index.js的具体行
+
+选择一种 source map 格式来增强调试过程 https://www.webpackjs.com/configuration/devtool/#devtool 里面有很多内容
+devtool: 'inline-source-map', //不生成 .map 映射文件，放入main.bundle.js文件中
+devtool: 'inline-cheap-source-map', //具体到行
+devtool: 'inline-cheap-module-source-map', //具体到行,并且还能检测到第三方引入的文件
+devtool: 'cheap-module-eval-source-map', //具体到行,并且还能检测到第三方引入的文件,并且运行速度快一点
+
+
+
+

@@ -1,0 +1,57 @@
+webpack  entry output 打包入口文件和输出文件基本配置项
+
+module.exports = {
+	//entry: './src/index.js' //如果只有一个入口脚本可以字符串形式写一个，默认名称的key是main
+	entry: {
+		app: './src/index.js'
+	},
+	output: {
+		//如果有多个打包文件，这里的filename也一定要区分多个输出名称
+		filename: '[name].bundle.js', //如果不定义这个名称则默认是main.js, [name]表示入口配置的key如 'app'，还可以用[hash]生成hash名
+		path: path.resolve(__dirname, 'dist')
+	}
+}
+
+我们再次打包看一下效果：npm run dev
+可以看到dist目录下生成了一个 app.bundle.js文件
+
+如果有多个打包文件呢 这个时候就要用对象来配置了
+创建 src/avatar.js 文件，内容：
+import jpg from './user.jpg';
+import './style.css';
+var app = document.getElementById('app');
+var img = new Image();
+img.src = jpg;
+img.classList.add('avatar');
+app.append(img);
+
+把index.js内容删除，添加如下内容：
+var app = document.getElementById('app');
+var h1 = document.createElement('h1');
+h1.textContent = 'Webpack App'
+app.append(h1)
+
+入口配置：
+entry: {
+	main: './src/index.js',
+	avatar: './src/avatar.js'
+},
+//输出配置还是不变
+
+重新打包： npm run dev
+可以看到dist目录下生成两个打包脚本了 avatar.bundle.js 和 main.bundle.js
+由于我们用了html-webpack-plugin插件， 所以index.html也自动帮我们加载好了这两个文件
+
+
+有时候我们希望把打包的脚本上传至 cdn 上去供访问，如http://cdn.com
+这时候入口文件index.html在加载这些打包的脚本时就要加上 cdn 前缀地址了
+通过配置，我们不用手动去做这些
+输出配置：
+output: {
+	publicPath: 'http://cdn.com',
+	filename: '[name].bundle.js',
+	path: path.resolve(__dirname, 'dist')
+}
+
+再次打包npm run dev
+可以看到引入的js文件加入了cdn地址

@@ -1,0 +1,41 @@
+创立自己的服务器访问 
+
+在 package.json 配置文件中的 scripts 项添加：
+"scripts": {
+	......
+	"middleware": "node server.js"
+}
+
+我们在package.js 同级目录下创建 server.js
+
+我们要用到express 和 webpack-dev-middleware 这个中间件插件
+npm install express webpack-dev-middleware -D
+
+编写server.js脚本：
+const express = require('express');
+const webpack = require('webpack');
+
+const app = express();
+
+app.listen(3000, () => {
+	console.log('server is running');
+})
+
+我们测试一下能不能启动这个3000端口服务
+可以看到打印出了 server is running 说明我们的服务可以启动
+继续编写server.js脚本
+const webpackDevMiddleware = require('webpack-dev-middleware');
+const config = require('./webpack.config.js'); //配置文件
+const compiler = webpack(config);//webpack编译器
+
+app.use(webpackDevMiddleware(compiler, {
+	publicPath: config.output.publicPath //这个先在webpack.config.js 中的output项中配置好 publicPath: '/'
+}))
+
+先退出服务：ctrl + c
+这个时候我们启动一下服务：npm run middleware
+可以看到compiled successfully 说明服务已启动了
+在浏览器上打开localhost:3000
+可以看到跟我们之前用 npm run server 命令运行的页面是一样的
+
+不过这样并不能实时刷新，还要码很多代码。直接用webpack-dev-server最好啦

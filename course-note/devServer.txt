@@ -1,0 +1,39 @@
+webpack  使用devServer提升开发效率
+
+我们在每一次重新打包时都要重新刷新浏览器来查看页面效果
+如果能够自动刷新就好了，使用 webpack-dev-server 可以实现我们想要的功能
+npm install webpack-dev-server -D
+修改我们的配置文件 webpack.config.js 添加配置
+devServer: {
+	contentBase: './dist'
+}
+以上配置告知 webpack-dev-server 在localhost:8080 下建立服务，将dist目录下的文件作为可访问文件
+我们还可以更改端口号：
+deServer: {
+	port: 8866,
+	contentBase: './dist'
+}
+
+我们在package.json配置中添加一个script脚本，可以直接运行开发服务器（dev server）
+"server": "webpack-dev-server --open" //这个open命令也可以在配置中添加, 如果配置加上了这里就不用 --open 了
+deServer: {
+	port: 8080,
+	contentBase: './dist',
+	open: true //自动打开浏览器访问
+}
+
+
+现在运行 npm run server
+compiled successfully 说明已启动服务，我们加了 --open 启动的同时会帮我们自动打开浏览器页面 localhost:8080
+
+现在我们来看一下能不能自动刷新
+创建样式文件 src/index.css  添加一些样式
+h1 {
+	text-align: center;
+}
+在 src/index.js 中引入这个样式
+import './index.css'
+
+然后按 Ctrl + s 保存
+我们看到页面自动刷新了，新的样式也应用到页面了
+这样大大提高了我们的开发效率！

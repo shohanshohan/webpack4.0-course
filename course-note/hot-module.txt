@@ -1,0 +1,31 @@
+webpack 模块热替换（不适用于生产环境）
+允许在运行时更新各种模块，而无需进行完全刷新
+我们在启用 devServer 时，已经能做到自动刷新了，但那是刷新整个页面（会看到整个页面闪了一下），而不是根据模块刷新
+devServer: {
+	contentBase: './dist'
+}
+
+使用 webpack内置的 HMR 插件：
+我们打开 webpack.config.js 文件做一些配置添加
+const webpack = require('webpack');
+......
+devServer: {
+	contentBase: './dist',
+	hot: true  //打开热更
+}
+......
+plugins: [
+	......
+	new webpack.NamedModulesPlugin(), //添加这两个内置插件
+	new webpack.HotModuleReplacementPlugin()
+]
+
+退出原来的服务器：Ctrl + c
+我们重新启动一下：npm run server
+
+我们再次来修改一下加载的源文件 如index.css
+h1 {
+	text-align: center;
+	padding-top: 50px; //把这个样式改了，ctrl + s 保存
+}
+我们会看到 localhost:8080 页面并没有整个刷新，而页面样式依然做了更新！看起来很神奇
