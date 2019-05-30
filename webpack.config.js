@@ -11,14 +11,14 @@ module.exports = {
 		//avatar: './src/avatar.js'
 	},
 	output: {
-		publicPath: '/',
+		//publicPath: '/',
 		path: path.resolve(__dirname, 'dist'),
 		filename: '[name].bundle.js'
 	},
 	devServer: {
-		contentBase: './dist',
-		open: true,
-		hot: true
+		contentBase: './dist', //访问的目录
+		open: true, //自动打开页面
+		hot: true //开启热更
 	},
 	module: {
 		rules: [
@@ -32,6 +32,16 @@ module.exports = {
 					}
 				}
 			}, */
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,  //在node_modules中的代码不做处理
+				loader: 'babel-loader',
+				options: {
+					presets: [['@babel/preset-env', {
+						useBuiltIns:'usage'
+					}]]
+				}
+			},
 			{
 				test: /\.(jpg|png|gif)$/,
 				use: {
@@ -74,6 +84,6 @@ module.exports = {
 			template: './src/index.html'
 		}),
 		new webpack.NamedModulesPlugin(),
-		new webpack.HotModuleReplacementPlugin()
+		new webpack.HotModuleReplacementPlugin() //开启热更插件
 	]
 }

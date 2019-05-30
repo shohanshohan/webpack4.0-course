@@ -1,0 +1,78 @@
+babel es6语法的应用
+babel 能够帮助我们解析 ES6 的语法 使其在浏览器中正常运行
+
+安装一下babel (参考地址：https://babel.docschina.org/setup#installation)
+npm install --save-dev babel-loader @babel/core
+
+接下来我们在 webpack.config.js 的配置顶module.rules中添加配置：
+{
+	test: /\.js$/,
+	exclude: /node_modules/,  //在node_modules中的代码不做处理
+	loader: 'babel-loader'
+{
+
+
+babel-loader只是加载的初步，要真正实现ES6转换成ES5的语法还要安装一个重要的东西：
+npm install @babel/preset-env -D //这个preset-env 包含了所有转换的语法
+
+我们还需要定义一个配置文件来让babel生效
+新建 .babelrc 文件与 webpack.config.js 同级目录
+内容：
+module.exports = {
+  presets: [
+    '@babel/preset-env'
+  ]
+}
+还有一个更简便的方法，直接在配置项中添加：
+{
+	test: /\.js$/,
+	exclude: /node_modules/,  //在node_modules中的代码不做处理
+	loader: 'babel-loader',
+	options: {
+		presets: ['@babel/preset-env']
+	}
+}
+注：记得之前的配置项output:{
+	//publicPath: '/'  //这一句要去掉或注释掉，因为这次打包没有启动服务器，不用根目录，否则会导致index.html加载的文件找不到！
+}
+
+我们在 src/index.js文件中添加一些ES6语法的代码
+const arr => [
+	'a',
+	'b',
+	'c'
+];
+
+arr.map(item => {
+	console.log(item)
+});
+
+我们打包一下，npm run dev
+页面效果和ES5语法是一样的
+我们查看main.bundle.js会发现我们写的ES6代码转换成了ES5语法
+
+效果是不错的，但还是会有一些低版本的浏览器不支持一些新的语法和内容，导致无法正常渲染
+我们要借助 babel的polyfill
+npm install @babel/polyfill -D
+
+我们在 src/index.js 中引入这个
+import '@babel/polyfill';
+再次打包 npm run dev
+会发现我们的打包文件 main.bundle.js 突然大了很多，由原来的49.9kb 到了 484kb
+这是因为引入这个polyfill后加载进去的东西太多了
+但并不是所有的内容我们都有用到，我们只是用到不多的语法的东西，我们并不想让打包文件变的很大
+
+我们给preset-env 一些配置参数来引导babel打包我们需要用到的东西
+{
+	test: /\.js$/,
+	exclude: /node_modules/,  
+	loader: 'babel-loader',
+	options: {
+		presets: [['@babel/preset-env', {
+			useBuiltIns:'usage' //加上这个参数，根据业务代码来加载
+		}]] //注意这里的写法，加参数时里面加数组括起来
+	}
+},
+
+再一次打包： npm run dev
+我们看到打包完成后的 main.bundle.js 的大小精简到了 78.7kb 而且运行效果是一样的

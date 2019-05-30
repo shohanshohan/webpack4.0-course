@@ -1,3 +1,4 @@
+import '@babel/polyfill';
 import './index.css';
 
 var app = document.getElementById('app');
@@ -7,6 +8,15 @@ h1.textContent = 'Webpack App'
 
 app.append(h1)
 
+const arr = [
+	'a',
+	'b',
+	'c'
+];
+
+arr.map(item => {
+	console.log(item)
+});
 
 /* var img2 = new Image();
 img2.src = jpg;
