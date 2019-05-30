@@ -1,0 +1,278 @@
+新建项目文件夹：3-2
+生成package.json配置文件：npm init
+新建目录 src 和 dist
+
+安装webpack : npm install webpack webpack-cli -D
+
+进入package.json配置文件 "script" 项改成：
+"scripts": {
+    "dev": "webpack" //这一行表示可以用npm run dev 启动webpack打包命令
+ },
+	
+
+根目录新建webpack.config.js 配置文件
+写入配置内容：
+var path = require('path');
+module.exports = {
+	entry: {
+		main: './src/index.js'
+	},
+	output: {
+		path: path.resolve(__dirname, '/dist'),
+		filename: 'main.js'
+	}
+}
+
+在/dist目录下新建index.html文件，入口文件
+内容如下：
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>3-2 webpack静态资源的打包</title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<script src="./main.js"></script>
+	</body>
+</html>
+
+
+在src目录下新建 index.js
+添加内容 ：
+import jpg from './user.jpg'
+
+var app = document.getElementById('app');
+var img = new Image();
+img.src = jpg;
+app.append(img);
+
+这里用到了图片文件加载
+我们安装一个file-loader加载器帮助 webpack 打包js之外的文件
+npm install file-loader -D
+
+在 webpack.config.js 配置文件中添加配置信息
+,
+	module: {
+		rules: [
+			{
+				test: /\.jpg$/,
+				use: 'file-loader',
+				options: {
+						name: '[name].[hash].[ext]', //规定打包后的名称
+					  outputPath: 'images/' //打包后的存放路径 /dist/images
+				}
+			}
+		]
+	}
+	
+	再次打包 npm run dev
+	/dist目录下会多一个图片文件，浏览器打开/dist/index.html 文件， 图片正常显示出来
+	
+	现在添加一个.css样式文件
+	新建 /src/style.css 文件
+	内容：
+	.avatar {
+		margin-left: 150px;
+		margin-top: 100px;
+	}
+	
+	在 src/index.js 文件中引入样式文件 style.css
+	import './style.css'
+	由于webpack不能识别.css文件，我们要引入 style-loader 和 css-loader
+	npm install style-loader css-loader -D
+	
+	在 webpack.config.js 文件的module配置项rules中添加如下内容：
+	,
+	{
+		test: /\.css$/,
+		use: ['style-loader', 'css-loader']
+	}
+
+我们重新打包 npm run dev
+会发现样式起作用了
+	
+	还有一个url-loader也可以实现 file-loader的功能，它可以直接把图片以base64的形式打包进js脚本中
+	npm install url-loader -D
+	
+	进入webpack.config.js 修改内容
+		/* {
+			test: /\.(jpg|png|gif)$/,
+			use: {
+				loader: 'file-loader',
+				options: {
+					name: '[name].[hash].[ext]', //规定打包后的名称
+				  outputPath: 'images/' //打包后的存放路径 /dist/images
+				}
+			}
+		}, */
+		{
+			test: /\.(jpg|png|gif)$/,
+			use: 'url-loader'
+		},
+		
+		再次打包 npm run dev
+		dist目录下不见图片文件，但图片显示正常
+		但这样做有一个问题，碰到比较大的文件时，加载打包后的脚本就会很费时
+		所以我们要做一个限制，对于文件大小的限制，在超过多大的情况下就放入另外的地方打包
+		{
+			test: /\.(jpg|png|gif)$/,
+			use: {
+				loader: 'url-loader',
+				options: {
+					name: '[name].[hash].[ext]',
+					outputPath: 'images/',
+					limit: 1024*2 //当超过2kb时打包到 /dist/images/目录下
+				}
+			}
+		},
+		 再次打包 npm run dev
+		 可以看到图片文件打包到了 /dist/images/ 目录下了，这样的操作比file-loader灵活，可以提高效率
+		 
+		 
+		 在引入样式文件时还可以引入sass文件
+		 新建 src/index.scss文件
+		 内容：
+		 body {
+		 	.avatar {
+		 		width: 150px;
+		 		height: 150px;
+		 	}
+		 }
+		 
+		我们要安装sass-loader 和 node-sass
+		npm install sass-loader node-loader -D
+		
+		在 webpack.config.js文件中rules项添加内容：
+		,
+		{
+			test: /\.scss$/,
+			use: ['style-loader', 'css-loader', 'sass-loader]
+		}
+		
+	再次打包 npm run dev 发现这个sass样式也可以起作用了
+	
+	有时我们要写一些样式 如 transform 会根据不同的浏览器厂商加上前缀 如 -webkit-transform
+	有一个loader可以帮助我们自动地添加厂商前缀 postcss-loader
+	npm install postcss-loader -D
+	
+	这个loader还需要一个配置文件 postcss.config.js 放入webpack.config.js同级目录下
+	内容：
+	module.exports = {
+		plugins: [
+			require('autoprefixer') //这里要用到这个插件 npm install autoprefixer -D
+		]
+	}
+	
+	在 webpack.config.js 修改如下：
+	{
+		test: /\.scss$/,
+		use: ['style-loader', 'css-loader', 'sass-loader', 'postcss-loader'] //加上postcss-loader
+	}
+	
+	再次打包 npm run dev 
+	transform 这样的样式就会自动帮助识别添加前缀了！
+	
+	
+	有时候会需要在scss样式文件中引入其它的.scss文件，如果你希望这些引入的样式文件也一样通过sass-loader和postcss-loader处理
+	这时候就要添加一些配置了，如下：
+	{
+		test: /\.scss$/,
+		use: [
+			'style-loader', 
+			{
+				loader: 'css-loader',
+				options: {
+					importLoaders: 2 //这个表示在用css-loader打包时还要经过两个loader,就是下面的两个，因为执行顺序是从后往前的
+				}
+			}, 
+			'sass-loader', 
+			'postcss-loader',
+		]
+	}
+	
+	新建/src/avatar.scss文件，内容：
+	body {
+		.avatar {
+			box-shadow: 10px 10px 5px #888888;
+		}
+	}
+	
+	在/src/index.scss文件中加载avatar.scss文件
+	@import './avatar.scss'   //注意语法@import
+	
+	再次打包 npm run dev 可以看到效果
+	
+	
+	在脚本中引入样式文件如 import './index.scss' 可是这样的样式会作用与所有相关的标签
+	有时候我们并不想要这样的效果，我们希望能指定一些地方来用而不要影响全局的样式，避免样式冲突
+	这个时候要怎么操作呢
+	使用模块化的样式
+	修改配置如下：
+	{
+		test: /\.scss$/,
+		use: [
+			'style-loader', 
+			{
+				loader: 'css-loader',
+				options: {
+					importLoaders: 2,
+					modules: true //加入这一句，表明css-loader打包时可使用模块化
+				}
+			}, 
+			'sass-loader', 
+			'postcss-loader',
+		]
+	}
+	
+	
+	src/index.js引入样式时改成 import style from './index.scss';
+	 再添加一些内容如下：
+	 var img2 = new Image();
+	 img2.src = jpg;
+	 img2.classList.add(style.avatar); //注意这里的写法
+	 app.append(img2);
+	
+	
+	再次打包 npm run dev
+	会发现这两个图片的样式不一样的，我们引入的style模块样式只作用于img2
+	
+	
+	引入字体文件, 引入第三方的一个字体 用了www.iconfont.cn网站上生成
+	新建 src/fonts 目录，把下载好的字体文件放入该目录下
+	在index.scss文件中引入字体文件，查看fonts目录下的 iconfont.css 文件 把内容复制到 index.scss 下面
+	并且修改一下引入的字体路径如: url('./fonts/iconfont.woff?t=1559047911411') format('woff')
+	因为我们的 index.scss 文件和字体文件不是同一个目录下的
+	有两个类如下：
+	.iconguanli-:before {
+	  content: "\e614";
+	}
+	
+	.iconhuatong-:before {
+	  content: "\e615";
+	}
+	这两个类就是图标要显示的样式名
+	
+	在 src/index.js 添加如下内容：添加两个图标
+	var span = document.createElement('span');
+	span.classList.add('iconfont');
+	span.classList.add('iconguanli-');
+	app.append(span);
+	
+	var span2 = document.createElement('span');
+	span2.classList.add('iconfont');
+	span2.classList.add('iconhuatong-');
+	app.append(span2);
+	这个时候index.scss是通用的，而不是模块化的样式了，所以改回 import './index.scss'
+	而且记得注释 webpack.config.js 这一句 //modules: true //加入这一句，表明css-loader打包时可使用模块化
+	
+	这个时候我们要用到 file-loader 文件打包
+	在webpack.config.js 配置项rules中添加：
+	,
+	{
+		test: /\.(eot|ttf|svg|woff)$/,
+		use: 'file-loader'
+	}
+	
+  再次打包 npm run dev 
+	浏览器打开 /dist/index.html 会发现span标签代表的两个图标显示在页面上了！
