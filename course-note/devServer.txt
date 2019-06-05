@@ -9,14 +9,14 @@ devServer: {
 }
 以上配置告知 webpack-dev-server 在localhost:8080 下建立服务，将dist目录下的文件作为可访问文件
 我们还可以更改端口号：
-deServer: {
+devServer: {
 	port: 8866,
 	contentBase: './dist'
 }
 
 我们在package.json配置中添加一个script脚本，可以直接运行开发服务器（dev server）
 "server": "webpack-dev-server --open" //这个open命令也可以在配置中添加, 如果配置加上了这里就不用 --open 了
-deServer: {
+devServer: {
 	port: 8080,
 	contentBase: './dist',
 	open: true //自动打开浏览器访问

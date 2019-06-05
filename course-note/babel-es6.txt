@@ -1,10 +1,11 @@
+Babel 是一个 JavaScript 编译器
 babel es6语法的应用
 babel 能够帮助我们解析 ES6 的语法 使其在浏览器中正常运行
 
 安装一下babel (参考地址：https://babel.docschina.org/setup#installation)
 npm install --save-dev babel-loader @babel/core
 
-接下来我们在 webpack.config.js 的配置顶module.rules中添加配置：
+接下来我们在 webpack.config.js 的配置项module.rules中添加配置：
 {
 	test: /\.js$/,
 	exclude: /node_modules/,  //在node_modules中的代码不做处理
@@ -18,7 +19,7 @@ npm install @babel/preset-env -D //这个preset-env 包含了所有转换的语�
 我们还需要定义一个配置文件来让babel生效
 新建 .babelrc 文件与 webpack.config.js 同级目录
 内容：
-module.exports = {
+{
   presets: [
     '@babel/preset-env'
   ]
@@ -53,7 +54,7 @@ arr.map(item => {
 
 效果是不错的，但还是会有一些低版本的浏览器不支持一些新的语法和内容，导致无法正常渲染
 我们要借助 babel的polyfill
-npm install @babel/polyfill -D
+npm install @babel/polyfill --save
 
 我们在 src/index.js 中引入这个
 import '@babel/polyfill';
