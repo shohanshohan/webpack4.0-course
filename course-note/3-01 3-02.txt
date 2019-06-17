@@ -109,7 +109,7 @@ npm install file-loader -D
 			}
 		}, */
 		{
-			test: /\.(jpg|png|gif)$/,
+			test: /\.(jpg|png|gif)$/,                                                                                                                                                                                
 			use: 'url-loader'
 		},
 		
